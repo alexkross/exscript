@@ -9,7 +9,7 @@ class InputHistoryTest(unittest.TestCase):
     CORRELATE = InputHistory
 
     def setUp(self):
-        t = NamedTemporaryFile()
+        t = NamedTemporaryFile() # Flawed on Windows platform because of exclusive open mode. Should use ``next(tempfile._get_candidate_names())`` for getting just file name.
         self.history = InputHistory(t.name)
 
     def testConstructor(self):
@@ -18,7 +18,7 @@ class InputHistoryTest(unittest.TestCase):
         h = InputHistory(t.name)
         h = InputHistory(t.name, 'foo')
         h.set('aaa', 'bbb')
-        self.assertEqual(open(t.name).read(), '[foo]\naaa = bbb\n\n')
+        self.assertEqual(open(t.name).read(), '[foo]\naaa = bbb\n\n') # Will fail on Windows platform. See notes for setUp method.
 
     def testGet(self):
         self.assertEqual(self.history.get('bar'), None)

@@ -1,8 +1,11 @@
+2to3.lst
 *.py[co]
 *.egg-info
 *.swp
+*.log
 *~
 config.xml
 build
 dist
 unit_test.cfg
+My/

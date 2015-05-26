@@ -33,7 +33,7 @@ class InputHistory(object):
     """
 
     def __init__(self,
-                 filename = '~/.exscript_history',
+                 filename = '~' + os.sep + '.exscript_history',
                  section  = os.path.basename(sys.argv[0])):
         """
         Constructor. The filename argument allows for listing on or
@@ -64,7 +64,7 @@ class InputHistory(object):
             warnings.warn('could not open %s, using tempfile' % filename)
             self.file = NamedTemporaryFile()
 
-        self.parser.readfp(self.file)
+        self.parser.read_file(self.file)
         if not self.parser.has_section(self.section):
             self.parser.add_section(self.section)
 
