@@ -87,13 +87,13 @@ class Loop(Token):
             lexer.expect(self, 'whitespace')
             self.during = Expression(lexer, parser, parent)
             lexer.next_if('whitespace')
-        
+
         # Check if this is an "until" loop.
         if lexer.next_if('keyword', 'until'):
             lexer.expect(self, 'whitespace')
             self.until = Expression(lexer, parser, parent)
             lexer.next_if('whitespace')
-        
+
         # End of statement.
         self.mark_end()
 
@@ -124,18 +124,18 @@ class Loop(Token):
         else:
             lists = [var.value(context) for var in self.list_variables]
         vars  = self.iter_varnames
-        
+
         # Make sure that all lists have the same length.
-        for list in lists:
-            if len(list) != len(lists[0]):
+        for lst in lists:
+            if len(lst) != len(lists[0]):
                 msg = 'All list variables must have the same length'
                 self.lexer.runtime_error(msg, self)
 
         # Iterate.
         for i in range(len(lists[0])):
             f = 0
-            for list in lists:
-                self.block.define(**{vars[f]: [list[i]]})
+            for lst in lists:
+                self.block.define(**{vars[f]: [lst[i]]})
                 f += 1
             if self.until is not None and self.until.value(context)[0]:
                 break

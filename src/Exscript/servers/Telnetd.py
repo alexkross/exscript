@@ -32,7 +32,7 @@ class Telnetd(Server):
     """
 
     def _recvline(self, conn):
-        while not '\n' in self.buf:
+        while not b'\n' in self.buf:
             self._poll_child_process()
             r, w, x = select.select([conn], [], [], self.timeout)
             if not self.running:
@@ -43,10 +43,10 @@ class Telnetd(Server):
             if not buf:
                 self.running = False
                 return None
-            self.buf += buf.replace('\r\n', '\n').replace('\r', '\n')
-        lines    = self.buf.split('\n')
-        self.buf = '\n'.join(lines[1:])
-        return lines[0] + '\n'
+            self.buf += buf.replace(b'\r\n', b'\n').replace(b'\r', b'\n')
+        lines    = self.buf.split(b'\n')
+        self.buf = b'\n'.join(lines[1:])
+        return lines[0] + b'\n'
 
     def _shutdown_notify(self, conn):
         try:

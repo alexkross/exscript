@@ -51,7 +51,7 @@ class Server(Process):
         self.timeout = .5
         self.dbg     = 0
         self.running = False
-        self.buf     = ''
+        self.buf     = b''
         self.socket  = None
         self.device  = device
         self.parent_conn, self.child_conn = Pipe()
@@ -71,7 +71,7 @@ class Server(Process):
         except OSError:
             self.running = False
             return False
-        if msg == 'shutdown':
+        if msg == b'shutdown':
             self.running = False
             return False
         return True
@@ -111,7 +111,7 @@ class Server(Process):
         """
         Stop the daemon without waiting for the thread to terminate.
         """
-        self.parent_conn.send('shutdown')
+        self.parent_conn.send(b'shutdown')
 
     def exit_command(self, cmd):
         """

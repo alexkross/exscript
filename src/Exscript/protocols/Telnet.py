@@ -33,6 +33,7 @@ class Telnet(Protocol):
         self.tn = None
 
     def _telnetlib_received(self, data):
+        data = data.encode()
         self._receive_cb(data)
         self.buffer.append(data)
 

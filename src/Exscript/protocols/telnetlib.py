@@ -213,10 +213,11 @@ class Telnet:
                 self.sock = socket.socket(af, socktype, proto)
                 self.sock.settimeout(self.connect_timeout)
                 self.sock.connect(sa)
-            except OSError as msg:
+            except OSError as ose:
                 if self.sock:
                     self.sock.close()
                 self.sock = None
+                msg = str(ose)
                 continue
             break
         if not self.sock:
@@ -465,7 +466,7 @@ class Telnet:
                     self.msg('IAC %d not recognized' % ord(command))
         except EOFError: # raised by self.rawq_getchar()
             pass
-        self.cookedq.write(buf)
+        self.cookedq.write(buf.encode())
         if self.data_callback is not None:
             self.data_callback(buf, **self.data_callback_kwargs)
 
@@ -562,17 +563,17 @@ class Telnet:
             if time.time() > end:
                 return False
 
-    def _waitfor(self, list, timeout=None, flush=False, cleanup=None):
+    def _waitfor(self, lst, timeout=None, flush=False, cleanup=None):
         re = None
-        list = list[:]
-        indices = list(range(len(list)))
+        lst = lst[:]
+        indices = list(range(len(lst)))
         search_window_size = 150
         head_loockback_size = 10
         for i in indices:
-            if not hasattr(list[i], "search"):
+            if not hasattr(lst[i], "search"):
                 if not re: import re
-                list[i] = re.compile(list[i])
-        self.msg("Expecting %s" % [l.pattern for l in list])
+                lst[i] = re.compile(lst[i])
+        self.msg("Expecting %s" % [l.pattern for l in lst])
         incomplete_tail = ''
         clean_sw_size = search_window_size
         while 1:
@@ -598,7 +599,7 @@ class Telnet:
                 self.cookedq.seek(qlen - search_window_size)
                 search_window = self.cookedq.read()
             for i in indices:
-                m = list[i].search(search_window)
+                m = lst[i].search(search_window)
                 if m is not None:
                     e    = len(m.group())
                     e    = qlen - e + 1
@@ -628,7 +629,7 @@ class Telnet:
             raise EOFError
         return -1, None, text
 
-    def waitfor(self, list, timeout=None, cleanup=None):
+    def waitfor(self, lst, timeout=None, cleanup=None):
         """Read until one from a list of a regular expressions matches.
 
         The first argument is a list of regular expressions, either
@@ -649,14 +650,14 @@ class Telnet:
         or if more than one expression can match the same input, the
         results are undeterministic, and may depend on the I/O timing.
         """
-        return self._waitfor(list, timeout, False, cleanup)
+        return self._waitfor(lst, timeout, False, cleanup)
 
-    def expect(self, list, timeout=None, cleanup=None):
+    def expect(self, lst, timeout=None, cleanup=None):
         """
         Like waitfor(), but removes the matched data from the incoming
         buffer.
         """
-        return self._waitfor(list, timeout, True, cleanup = cleanup)
+        return self._waitfor(lst, timeout, True, cleanup = cleanup)
 
 
 def test():
